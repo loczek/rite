@@ -2,7 +2,7 @@ use core::panic;
 
 use winit::window::Window;
 
-use crate::{font::BitmapFont, Rectangle, Vertex};
+use crate::{font::BitmapFont, scalable, Rectangle, Vertex};
 
 pub struct TextRenderer<'a> {
     bitmap: &'a BitmapFont,
@@ -72,13 +72,13 @@ impl<'a> TextRenderer<'a> {
         let mut shape_iter = shapes.iter_mut();
 
         while let Some(vertex) = shape_iter.next() {
-            let w_factor = vertex.position[0] / (window_width / 2.0);
-            let h_factor = vertex.position[1] / (window_height / 2.0);
-            vertex.position[0] = w_factor - 1.0;
-            vertex.position[1] = h_factor - 1.0;
-
-            vertex.tex_coords[0] = vertex.tex_coords[0] / bitmap_width as f32;
-            vertex.tex_coords[1] = vertex.tex_coords[1] / bitmap_height as f32;
+            scalable::scale(
+                vertex,
+                bitmap_height as f32,
+                bitmap_width as f32,
+                window_height,
+                window_width,
+            );
         }
 
         shapes

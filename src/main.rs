@@ -1,5 +1,6 @@
 mod font;
 mod rope;
+mod scalable;
 mod text;
 
 use font::BitmapFont;
