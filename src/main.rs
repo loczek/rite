@@ -120,7 +120,11 @@ fn main() {
                                     }
                                 }
                                 keyboard::NamedKey::ArrowRight => cursor_x += 1,
-                                keyboard::NamedKey::ArrowLeft => cursor_x -= 1,
+                                keyboard::NamedKey::ArrowLeft => {
+                                    if cursor_x > 0 {
+                                        cursor_x -= 1
+                                    }
+                                }
                                 keyboard::NamedKey::Space => {
                                     content.insert(cursor_x, ' ');
                                     cursor_x += 1;
