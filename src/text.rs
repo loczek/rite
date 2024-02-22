@@ -51,7 +51,7 @@ impl<'a> TextRenderer<'a> {
 
             let rect = Rectangle {
                 bottom: curr_y - (char.offset_top as i32),
-                left: x + curr_x + char.offset_left,
+                left: curr_x + char.offset_left,
                 width: char.width,
                 height: char.height,
             };
