@@ -77,6 +77,56 @@ impl Vertex {
     }
 }
 
+#[derive(Copy, Clone, Debug)]
+struct ColorVertex {
+    position: [f32; 2],
+    color: [f32; 3],
+}
+implement_vertex!(ColorVertex, position, color);
+
+impl ColorVertex {
+    fn from(rect: Rectangle, color: [f32; 3]) -> Vec<ColorVertex> {
+        let bottom = rect.bottom as f32;
+        let left = rect.left as f32;
+        let height = rect.height as f32;
+        let width = rect.width as f32;
+
+        let shape = vec![
+            ColorVertex {
+                // top left
+                position: [left, bottom + height],
+                color,
+            },
+            ColorVertex {
+                // top right
+                position: [left + width, bottom + height],
+                color,
+            },
+            ColorVertex {
+                // bottom right
+                position: [left + width, bottom],
+                color,
+            },
+            ColorVertex {
+                // bottom right
+                position: [left + width, bottom],
+                color,
+            },
+            ColorVertex {
+                // bottom left
+                position: [left, bottom],
+                color,
+            },
+            ColorVertex {
+                // top left
+                position: [left, bottom + height],
+                color,
+            },
+        ];
+        shape
+    }
+}
+
 fn main() {
     let event_loop = winit::event_loop::EventLoop::new().expect("Unable to create event loop");
 
@@ -100,6 +150,16 @@ fn main() {
         None,
     )
     .unwrap();
+
+    let color_program = glium::Program::from_source(
+        &display,
+        include_str!("./shaders/color.vert"),
+        include_str!("./shaders/color.frag"),
+        None,
+    )
+    .unwrap();
+
+    let padding = 32;
 
     let mut cursor_x = 0;
 
@@ -158,8 +218,8 @@ fn main() {
 
                     let shape = renderer.render(
                         &mut content,
-                        10,
-                        (window.inner_size().height - 48) as i32,
+                        padding,
+                        (window.inner_size().height - bitmap.ascent as u32) as i32 - padding,
                         &window,
                     );
 
@@ -171,6 +231,75 @@ fn main() {
                             &indices,
                             &program,
                             &uniforms,
+                            &Default::default(),
+                        )
+                        .unwrap();
+
+                    let cursor_rect = Rectangle {
+                        bottom: (window.inner_size().height - bitmap.ascent as u32) as i32
+                            + bitmap.descent
+                            - padding,
+                        left: (12 * cursor_x as i32) + padding,
+                        height: 24,
+                        width: 1,
+                    };
+
+                    let cursor_shape = ColorVertex::from(cursor_rect, [1.0, 1.0, 1.0]);
+
+                    let ascent_rect: Rectangle = Rectangle {
+                        bottom: (window.inner_size().height - bitmap.ascent as u32) as i32
+                            + bitmap.ascent
+                            - padding,
+                        left: padding,
+                        height: 1,
+                        width: 200,
+                    };
+
+                    let ascent_shape = ColorVertex::from(ascent_rect, [1.0, 0.0, 0.0]);
+
+                    let baseline_rect: Rectangle = Rectangle {
+                        bottom: (window.inner_size().height - bitmap.ascent as u32) as i32
+                            - padding,
+                        left: padding,
+                        height: 1,
+                        width: 200,
+                    };
+
+                    let baseline_shape = ColorVertex::from(baseline_rect, [0.0, 1.0, 0.0]);
+
+                    let descent_rect: Rectangle = Rectangle {
+                        bottom: (window.inner_size().height - bitmap.ascent as u32) as i32
+                            + bitmap.descent
+                            - padding,
+                        left: padding,
+                        height: 1,
+                        width: 200,
+                    };
+
+                    let descent_shape = ColorVertex::from(descent_rect, [0.0, 0.0, 1.0]);
+
+                    let mut combined_shape =
+                        [cursor_shape, ascent_shape, baseline_shape, descent_shape].concat();
+
+                    let cursor_shape_iter = combined_shape.iter_mut();
+
+                    for vert in cursor_shape_iter {
+                        scalable::rescale_position(
+                            vert,
+                            window.inner_size().height as f32,
+                            window.inner_size().width as f32,
+                        );
+                    }
+
+                    let vertex_buffer_cursor =
+                        glium::VertexBuffer::new(&display, &combined_shape).unwrap();
+
+                    target
+                        .draw(
+                            &vertex_buffer_cursor,
+                            &indices,
+                            &color_program,
+                            &glium::uniforms::EmptyUniforms,
                             &Default::default(),
                         )
                         .unwrap();
