@@ -34,8 +34,7 @@ impl<'a> TextRenderer<'a> {
             }
 
             if letter == '\n' {
-                // TODO: this probably should not be bitmap_height but the line height
-                curr_y -= bitmap_height as i32;
+                curr_y -= self.bitmap.ascent.abs_diff(self.bitmap.descent) as i32;
                 continue;
             }
 

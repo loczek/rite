@@ -17,6 +17,8 @@ pub struct Character {
 pub struct BitmapFont {
     pub texture: glium::Texture2d,
     pub char: HashMap<char, Character>,
+    pub ascent: i32,
+    pub descent: i32,
 }
 
 impl BitmapFont {
@@ -107,6 +109,8 @@ impl BitmapFont {
         Self {
             texture: glium::texture::Texture2d::new(display, image).unwrap(),
             char: map,
+            ascent: font.as_scaled(scale).ascent() as i32,
+            descent: font.as_scaled(scale).descent() as i32,
         }
     }
 }
