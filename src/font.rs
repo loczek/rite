@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Debug};
 
 use ab_glyph::{point, Font, FontRef, ScaleFont};
 use glium::backend::Facade;
@@ -14,6 +14,7 @@ pub struct Character {
     pub offset_left: i32,
 }
 
+#[derive(Debug)]
 pub struct BitmapFont {
     pub texture: glium::Texture2d,
     pub char: HashMap<char, Character>,
@@ -27,9 +28,10 @@ impl BitmapFont {
         F: ?Sized,
         F: Facade,
     {
-        let scale = 32.0;
+        let scale = 24.0;
 
-        let font = FontRef::try_from_slice(include_bytes!("./assets/Roboto.ttf")).unwrap();
+        let font =
+            FontRef::try_from_slice(include_bytes!("./assets/FiraCode-Regular.ttf")).unwrap();
 
         let characters = "!\"#$%&'()*+,-./(){};+,0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 
