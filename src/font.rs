@@ -1,7 +1,7 @@
 use std::{collections::HashMap, fmt::Debug};
 
 use ab_glyph::{point, Font, FontRef, ScaleFont};
-use glium::backend::Facade;
+use glium::{glutin::surface::WindowSurface, Display};
 use image::Rgba;
 
 #[derive(Copy, Clone, Debug)]
@@ -23,11 +23,7 @@ pub struct BitmapFont {
 }
 
 impl BitmapFont {
-    pub fn new<F>(display: &F) -> Self
-    where
-        F: ?Sized,
-        F: Facade,
-    {
+    pub fn new(display: &Display<WindowSurface>) -> Self {
         let scale = 24.0;
 
         let font =
