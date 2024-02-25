@@ -1,7 +1,7 @@
-use crate::{ColorVertex, Vertex};
+use crate::vertex::{ColorVertex, TextureVertex};
 
 pub fn scale(
-    vertex: &mut Vertex,
+    vertex: &mut TextureVertex,
     from_height: f32,
     from_width: f32,
     to_height: f32,
@@ -16,7 +16,7 @@ pub fn scale(
     vertex.tex_coords[1] = vertex.tex_coords[1] / from_height as f32;
 }
 
-pub fn rescale_texture(vertex: &mut Vertex, from_height: f32, from_width: f32) {
+pub fn rescale_texture(vertex: &mut TextureVertex, from_height: f32, from_width: f32) {
     vertex.tex_coords[0] = vertex.tex_coords[0] / from_width as f32;
     vertex.tex_coords[1] = vertex.tex_coords[1] / from_height as f32;
 }
