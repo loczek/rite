@@ -43,8 +43,8 @@ fn main() {
 
     let program = glium::Program::from_source(
         &display,
-        include_str!("./shaders/vertex.vert"),
-        include_str!("./shaders/fragment.frag"),
+        include_str!("./shaders/texture.vert"),
+        include_str!("./shaders/texture.frag"),
         None,
     )
     .unwrap();
