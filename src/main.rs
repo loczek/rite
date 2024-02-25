@@ -2,10 +2,12 @@ mod font;
 mod rope;
 mod scalable;
 mod text;
+mod vertex;
 
 use font::BitmapFont;
 use glium::{implement_vertex, uniform, Surface};
 use text::TextRenderer;
+use vertex::ColorVertex;
 use winit::{
     event::{ElementState, Event, WindowEvent},
     keyboard,
@@ -21,110 +23,6 @@ struct Rectangle {
     left: i32,
     height: u32,
     width: u32,
-}
-
-#[derive(Copy, Clone, Debug)]
-struct Vertex {
-    position: [f32; 2],
-    tex_coords: [f32; 2],
-}
-implement_vertex!(Vertex, position, tex_coords);
-
-impl Vertex {
-    fn from(rect: Rectangle, texture_rect: Rectangle) -> Vec<Vertex> {
-        let bottom = rect.bottom as f32;
-        let left = rect.left as f32;
-        let height = rect.height as f32;
-        let width = rect.width as f32;
-
-        let texture_bottom = texture_rect.bottom as f32;
-        let texture_left = texture_rect.left as f32;
-        let texture_width = texture_rect.width as f32;
-
-        let shape = vec![
-            Vertex {
-                // top left
-                position: [left, bottom + height],
-                tex_coords: [texture_left, 0.0],
-            },
-            Vertex {
-                // top right
-                position: [left + width, bottom + height],
-                tex_coords: [texture_left + texture_width, 0.0],
-            },
-            Vertex {
-                // bottom right
-                position: [left + width, bottom],
-                tex_coords: [texture_left + texture_width, texture_bottom],
-            },
-            Vertex {
-                // bottom right
-                position: [left + width, bottom],
-                tex_coords: [texture_left + texture_width, texture_bottom],
-            },
-            Vertex {
-                // bottom left
-                position: [left, bottom],
-                tex_coords: [texture_left, texture_bottom],
-            },
-            Vertex {
-                // top left
-                position: [left, bottom + height],
-                tex_coords: [texture_left, 0.0],
-            },
-        ];
-        shape
-    }
-}
-
-#[derive(Copy, Clone, Debug)]
-struct ColorVertex {
-    position: [f32; 2],
-    color: [f32; 3],
-}
-implement_vertex!(ColorVertex, position, color);
-
-impl ColorVertex {
-    fn from(rect: Rectangle, color: [f32; 3]) -> Vec<ColorVertex> {
-        let bottom = rect.bottom as f32;
-        let left = rect.left as f32;
-        let height = rect.height as f32;
-        let width = rect.width as f32;
-
-        let shape = vec![
-            ColorVertex {
-                // top left
-                position: [left, bottom + height],
-                color,
-            },
-            ColorVertex {
-                // top right
-                position: [left + width, bottom + height],
-                color,
-            },
-            ColorVertex {
-                // bottom right
-                position: [left + width, bottom],
-                color,
-            },
-            ColorVertex {
-                // bottom right
-                position: [left + width, bottom],
-                color,
-            },
-            ColorVertex {
-                // bottom left
-                position: [left, bottom],
-                color,
-            },
-            ColorVertex {
-                // top left
-                position: [left, bottom + height],
-                color,
-            },
-        ];
-        shape
-    }
 }
 
 fn main() {
