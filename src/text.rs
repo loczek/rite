@@ -2,7 +2,7 @@ use core::panic;
 
 use winit::window::Window;
 
-use crate::{font::BitmapFont, scalable, Rectangle, Vertex};
+use crate::{font::BitmapFont, scalable, vertex::TextureVertex, Rectangle};
 
 pub struct TextRenderer<'a> {
     bitmap: &'a BitmapFont,
@@ -13,19 +13,11 @@ impl<'a> TextRenderer<'a> {
         TextRenderer { bitmap }
     }
 
-    pub fn render(&self, string: &mut String, x: i32, y: i32, window: &Window) -> Vec<Vertex> {
-        let mut shapes: Vec<Vertex> = Vec::new();
-
-        let size: winit::dpi::PhysicalSize<u32> = window.inner_size();
-
-        let window_width = size.width as f32;
-        let window_height = size.height as f32;
+    fn generate_shapes(&self, string: &mut String, x: i32, y: i32) -> Vec<TextureVertex> {
+        let mut shapes: Vec<_> = Vec::new();
 
         let mut curr_x = x;
         let mut curr_y = y;
-
-        let bitmap_width = self.bitmap.texture.width();
-        let bitmap_height = self.bitmap.texture.height();
 
         for letter in string.chars() {
             if letter == '\r' {
@@ -63,10 +55,19 @@ impl<'a> TextRenderer<'a> {
                 height: char.height,
             };
 
-            shapes.extend_from_slice(&Vertex::from(rect, texture_rect));
+            shapes.extend_from_slice(&TextureVertex::from(rect, texture_rect));
 
             curr_x += char.advance as i32;
         }
+
+        shapes
+    }
+
+    fn scale_shapes(&self, shapes: &mut Vec<TextureVertex>, window: &Window) {
+        let bitmap_width = self.bitmap.texture.width();
+        let bitmap_height = self.bitmap.texture.height();
+
+        let size = window.inner_size();
 
         let mut shape_iter = shapes.iter_mut();
 
@@ -75,10 +76,22 @@ impl<'a> TextRenderer<'a> {
                 vertex,
                 bitmap_height as f32,
                 bitmap_width as f32,
-                window_height,
-                window_width,
+                size.height as f32,
+                size.width as f32,
             );
         }
+    }
+
+    pub fn render(
+        &self,
+        string: &mut String,
+        x: i32,
+        y: i32,
+        window: &Window,
+    ) -> Vec<TextureVertex> {
+        let mut shapes = self.generate_shapes(string, x, y);
+
+        self.scale_shapes(&mut shapes, window);
 
         shapes
     }
