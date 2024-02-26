@@ -37,7 +37,11 @@ fn main() {
 
     let renderer = TextRenderer::new(&bitmap);
 
-    let mut content = include_str!("./samples/sample.js").to_string();
+    let mut content = include_str!("./samples/sample.js")
+        .to_string()
+        .chars()
+        .filter(|x| *x != '\r')
+        .collect::<String>();
 
     let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 
@@ -91,7 +95,6 @@ fn main() {
                                     cursor_x += 1;
                                 }
                                 keyboard::NamedKey::Enter => {
-                                    content.insert(cursor_x, '\r');
                                     content.insert(cursor_x, '\n');
                                 }
                                 _ => return,

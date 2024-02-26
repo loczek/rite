@@ -20,13 +20,9 @@ impl<'a> TextRenderer<'a> {
         let mut curr_y = y;
 
         for letter in string.chars() {
-            if letter == '\r' {
-                curr_y -= self.bitmap.ascent.abs() + self.bitmap.descent.abs();
-                continue;
-            }
-
             if letter == '\n' {
                 curr_x = x;
+                curr_y -= self.bitmap.ascent.abs() + self.bitmap.descent.abs();
                 continue;
             }
 
