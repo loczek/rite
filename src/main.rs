@@ -60,6 +60,7 @@ fn main() {
     let padding = 16;
 
     let mut cursor_x = 0;
+    let mut cursor_y = 0;
 
     event_loop
         .run(|ev, control_flow| match ev {
@@ -83,9 +84,15 @@ fn main() {
                                         cursor_x -= 1
                                     }
                                 }
+                                keyboard::NamedKey::ArrowDown => cursor_y += 1,
+                                keyboard::NamedKey::ArrowUp => cursor_y -= 1,
                                 keyboard::NamedKey::Space => {
                                     content.insert(cursor_x, ' ');
                                     cursor_x += 1;
+                                }
+                                keyboard::NamedKey::Enter => {
+                                    content.insert(cursor_x, '\r');
+                                    content.insert(cursor_x, '\n');
                                 }
                                 _ => return,
                             },
@@ -136,7 +143,8 @@ fn main() {
                     let cursor_rect = Rectangle {
                         bottom: (window.inner_size().height - bitmap.ascent as u32) as i32
                             + bitmap.descent
-                            - padding,
+                            - padding
+                            - (24 * cursor_y as i32),
                         left: (12 * cursor_x as i32) + padding,
                         height: 24,
                         width: 1,
