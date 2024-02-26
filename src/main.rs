@@ -19,10 +19,10 @@ extern crate winit;
 
 #[derive(Clone, Copy, Debug)]
 struct Rectangle {
-    bottom: i32,
-    left: i32,
-    height: u32,
-    width: u32,
+    bottom: f32,
+    left: f32,
+    height: f32,
+    width: f32,
 }
 
 fn main() {
@@ -57,7 +57,7 @@ fn main() {
     )
     .unwrap();
 
-    let padding = 16;
+    let padding = 16.0;
 
     let mut cursor_x = 0;
     let mut cursor_y = 0;
@@ -124,7 +124,7 @@ fn main() {
                     let shape = renderer.render(
                         &mut content,
                         padding,
-                        (window.inner_size().height - bitmap.ascent as u32) as i32 - padding,
+                        window.inner_size().height as f32 - bitmap.ascent - padding,
                         &window,
                     );
 
@@ -141,45 +141,41 @@ fn main() {
                         .unwrap();
 
                     let cursor_rect = Rectangle {
-                        bottom: (window.inner_size().height - bitmap.ascent as u32) as i32
-                            + bitmap.descent
+                        bottom: window.inner_size().height as f32 - bitmap.ascent + bitmap.descent
                             - padding
-                            - (24 * cursor_y as i32),
-                        left: (12 * cursor_x as i32) + padding,
-                        height: 24,
-                        width: 1,
+                            - (24.0 * curr_cursor_y as f32),
+                        left: (12.0 * curr_cursor_x as f32) + padding,
+                        height: 24.0,
+                        width: 2.0,
                     };
 
                     let cursor_shape = ColorVertex::from(cursor_rect, [1.0, 1.0, 1.0]);
 
                     let ascent_rect: Rectangle = Rectangle {
-                        bottom: (window.inner_size().height - bitmap.ascent as u32) as i32
-                            + bitmap.ascent
+                        bottom: window.inner_size().height as f32 - bitmap.ascent + bitmap.ascent
                             - padding,
                         left: padding,
-                        height: 1,
-                        width: 200,
+                        height: 1.0,
+                        width: 200.0,
                     };
 
                     let ascent_shape = ColorVertex::from(ascent_rect, [1.0, 0.0, 0.0]);
 
                     let baseline_rect: Rectangle = Rectangle {
-                        bottom: (window.inner_size().height - bitmap.ascent as u32) as i32
-                            - padding,
+                        bottom: window.inner_size().height as f32 - bitmap.ascent - padding,
                         left: padding,
-                        height: 1,
-                        width: 200,
+                        height: 1.0,
+                        width: 200.0,
                     };
 
                     let baseline_shape = ColorVertex::from(baseline_rect, [0.0, 1.0, 0.0]);
 
                     let descent_rect: Rectangle = Rectangle {
-                        bottom: (window.inner_size().height - bitmap.ascent as u32) as i32
-                            + bitmap.descent
+                        bottom: window.inner_size().height as f32 - bitmap.ascent + bitmap.descent
                             - padding,
                         left: padding,
-                        height: 1,
-                        width: 200,
+                        height: 1.0,
+                        width: 200.0,
                     };
 
                     let descent_shape = ColorVertex::from(descent_rect, [0.0, 0.0, 1.0]);

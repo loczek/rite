@@ -13,7 +13,7 @@ impl<'a> TextRenderer<'a> {
         TextRenderer { bitmap }
     }
 
-    fn generate_shapes(&self, string: &mut String, x: i32, y: i32) -> Vec<TextureVertex> {
+    fn generate_shapes(&self, string: &mut String, x: f32, y: f32) -> Vec<TextureVertex> {
         let mut shapes: Vec<_> = Vec::new();
 
         let mut curr_x = x;
@@ -21,17 +21,17 @@ impl<'a> TextRenderer<'a> {
 
         for letter in string.chars() {
             if letter == '\r' {
-                curr_x = x;
+                curr_y -= self.bitmap.ascent.abs() + self.bitmap.descent.abs();
                 continue;
             }
 
             if letter == '\n' {
-                curr_y -= self.bitmap.ascent.abs_diff(self.bitmap.descent) as i32;
+                curr_x = x;
                 continue;
             }
 
             if letter == ' ' {
-                curr_x += 12;
+                curr_x += 12.0;
                 continue;
             }
 
@@ -42,22 +42,22 @@ impl<'a> TextRenderer<'a> {
                 .unwrap_or_else(|| panic!("character {} not included in bitmap", letter));
 
             let rect = Rectangle {
-                bottom: curr_y - (char.offset_top as i32),
+                bottom: curr_y - (char.offset_top),
                 left: curr_x + char.offset_left,
                 width: char.width,
                 height: char.height,
             };
 
             let texture_rect = Rectangle {
-                bottom: char.height as i32,
-                left: char.id as i32,
+                bottom: char.height,
+                left: char.id as f32,
                 width: char.width,
                 height: char.height,
             };
 
             shapes.extend_from_slice(&TextureVertex::from(rect, texture_rect));
 
-            curr_x += char.advance as i32;
+            curr_x += char.advance;
         }
 
         shapes
@@ -85,8 +85,8 @@ impl<'a> TextRenderer<'a> {
     pub fn render(
         &self,
         string: &mut String,
-        x: i32,
-        y: i32,
+        x: f32,
+        y: f32,
         window: &Window,
     ) -> Vec<TextureVertex> {
         let mut shapes = self.generate_shapes(string, x, y);

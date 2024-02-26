@@ -7,19 +7,19 @@ use image::Rgba;
 #[derive(Copy, Clone, Debug)]
 pub struct Character {
     pub id: u32,
-    pub width: u32,
-    pub height: u32,
-    pub advance: u32,
-    pub offset_top: i32,
-    pub offset_left: i32,
+    pub width: f32,
+    pub height: f32,
+    pub advance: f32,
+    pub offset_top: f32,
+    pub offset_left: f32,
 }
 
 #[derive(Debug)]
 pub struct BitmapFont {
     pub texture: glium::Texture2d,
     pub char: HashMap<char, Character>,
-    pub ascent: i32,
-    pub descent: i32,
+    pub ascent: f32,
+    pub descent: f32,
 }
 
 impl BitmapFont {
@@ -88,11 +88,11 @@ impl BitmapFont {
                     char,
                     Character {
                         id: x_offset,
-                        width: outline_bounds.width() as u32,
-                        height: outline_bounds.height() as u32,
-                        advance: font.as_scaled(scale).h_advance(glyph.id) as u32,
-                        offset_top: outline_bounds.max.y as i32,
-                        offset_left: outline_bounds.min.x as i32,
+                        width: outline_bounds.width(),
+                        height: outline_bounds.height(),
+                        advance: font.as_scaled(scale).h_advance(glyph.id),
+                        offset_top: outline_bounds.max.y,
+                        offset_left: outline_bounds.min.x,
                     },
                 );
 
@@ -107,8 +107,8 @@ impl BitmapFont {
         Self {
             texture: glium::texture::Texture2d::new(display, image).unwrap(),
             char: map,
-            ascent: font.as_scaled(scale).ascent() as i32,
-            descent: font.as_scaled(scale).descent() as i32,
+            ascent: font.as_scaled(scale).ascent(),
+            descent: font.as_scaled(scale).descent(),
         }
     }
 }
