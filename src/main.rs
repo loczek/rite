@@ -57,7 +57,7 @@ fn main() {
     )
     .unwrap();
 
-    let padding = 32;
+    let padding = 16;
 
     let mut cursor_x = 0;
 
