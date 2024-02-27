@@ -85,14 +85,32 @@ fn main() {
                                         content.remove(cursor_x);
                                     }
                                 }
-                                keyboard::NamedKey::ArrowRight => cursor_x += 1,
+                                keyboard::NamedKey::ArrowRight => {
+                                    let lines = content
+                                        .lines()
+                                        .map(|line| line.len())
+                                        .collect::<Vec<usize>>();
+
+                                    if cursor_x < lines[cursor_y] {
+                                        cursor_x += 1
+                                    }
+                                }
                                 keyboard::NamedKey::ArrowLeft => {
                                     if cursor_x > 0 {
                                         cursor_x -= 1
                                     }
                                 }
-                                keyboard::NamedKey::ArrowDown => cursor_y += 1,
-                                keyboard::NamedKey::ArrowUp => cursor_y -= 1,
+                                keyboard::NamedKey::ArrowDown => {
+                                    let lines = content.lines().count();
+                                    if cursor_y < lines {
+                                        cursor_y += 1
+                                    }
+                                }
+                                keyboard::NamedKey::ArrowUp => {
+                                    if cursor_y > 0 {
+                                        cursor_y -= 1
+                                    }
+                                }
                                 keyboard::NamedKey::Space => {
                                     content.insert(cursor_x, ' ');
                                     cursor_x += 1;
@@ -103,8 +121,21 @@ fn main() {
                                 _ => return,
                             },
                             keyboard::Key::Character(characters) => {
+                                let mut idx = 0;
+
+                                let mut offset_y = cursor_y;
+                                let chars = content.chars().collect::<Vec<_>>();
+
+                                while offset_y > 0 {
+                                    if chars[idx] == '\n' {
+                                        offset_y -= 1;
+                                    }
+
+                                    idx += 1;
+                                }
+
                                 for char in characters.chars() {
-                                    content.insert(cursor_x, char)
+                                    content.insert(idx + cursor_x, char)
                                 }
                                 cursor_x += 1
                             }
