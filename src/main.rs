@@ -63,6 +63,9 @@ fn main() {
 
     let padding = 16.0;
 
+    let mut curr_cursor_x = 0.0;
+    let mut curr_cursor_y = 0.0;
+
     let mut cursor_x = 0;
     let mut cursor_y = 0;
 
@@ -142,6 +145,9 @@ fn main() {
                             &Default::default(),
                         )
                         .unwrap();
+
+                    curr_cursor_x = lerp(curr_cursor_x, cursor_x as f32, 0.1);
+                    curr_cursor_y = lerp(curr_cursor_y, cursor_y as f32, 0.1);
 
                     let cursor_rect = Rectangle {
                         bottom: window.inner_size().height as f32 - bitmap.ascent + bitmap.descent
