@@ -146,7 +146,8 @@ fn main() {
                 WindowEvent::RedrawRequested => {
                     let mut target = display.draw();
 
-                    target.clear_color(0.005, 0.005, 0.005, 1.0);
+                    target.clear_color(2.0 / 255.0, 2.0 / 255.0, 2.0 / 255.0, 1.0);
+                    // target.clear_color(1.0, 1.0, 1.0, 1.0);
 
                     let uniforms = uniform! {
                         matrix: [
