@@ -1,12 +1,17 @@
+mod cursor;
 mod font;
-mod rope;
+mod render;
 mod scalable;
 mod text;
+mod utils;
 mod vertex;
 
+use cursor::Cursor;
 use font::BitmapFont;
-use glium::{implement_vertex, uniform, Surface};
+use glium::{uniform, Surface, VertexBuffer};
+use render::Application;
 use text::TextRenderer;
+use utils::interpolation::lerp;
 use vertex::ColorVertex;
 use winit::{
     event::{ElementState, Event, WindowEvent},
@@ -66,8 +71,8 @@ fn main() {
     let mut curr_cursor_x = 0.0;
     let mut curr_cursor_y = 0.0;
 
-    let mut cursor_x = 0;
-    let mut cursor_y = 0;
+    let mut cursor = Cursor::new();
+
 
     event_loop
         .run(|ev, control_flow| match ev {
@@ -80,64 +85,38 @@ fn main() {
                         match event.key_without_modifiers().as_ref() {
                             keyboard::Key::Named(key) => match key {
                                 keyboard::NamedKey::Backspace => {
-                                    if cursor_x > 0 {
-                                        cursor_x -= 1;
-                                        content.remove(cursor_x);
+                                    if cursor.cursor_x > 0 {
+                                        cursor.move_left(&content);
+                                        content.remove(cursor.cursor_x);
                                     }
                                 }
                                 keyboard::NamedKey::ArrowRight => {
-                                    let lines = content
-                                        .lines()
-                                        .map(|line| line.len())
-                                        .collect::<Vec<usize>>();
-
-                                    if cursor_x < lines[cursor_y] {
-                                        cursor_x += 1
-                                    }
+                                    cursor.move_right(&content);
                                 }
                                 keyboard::NamedKey::ArrowLeft => {
-                                    if cursor_x > 0 {
-                                        cursor_x -= 1
-                                    }
+                                    cursor.move_left(&content);
                                 }
                                 keyboard::NamedKey::ArrowDown => {
-                                    let lines = content.lines().count();
-                                    if cursor_y < lines {
-                                        cursor_y += 1
-                                    }
+                                    cursor.move_down(&content);
                                 }
                                 keyboard::NamedKey::ArrowUp => {
-                                    if cursor_y > 0 {
-                                        cursor_y -= 1
-                                    }
+                                    cursor.move_up(&content);
                                 }
                                 keyboard::NamedKey::Space => {
-                                    content.insert(cursor_x, ' ');
-                                    cursor_x += 1;
+                                    content.insert(cursor.cursor_x, ' ');
+                                    cursor.move_right(&content);
                                 }
                                 keyboard::NamedKey::Enter => {
-                                    content.insert(cursor_x, '\n');
+                                    content.insert(cursor.cursor_x, '\n');
+                                    cursor.move_right(&content);
                                 }
                                 _ => return,
                             },
                             keyboard::Key::Character(characters) => {
-                                let mut idx = 0;
-
-                                let mut offset_y = cursor_y;
-                                let chars = content.chars().collect::<Vec<_>>();
-
-                                while offset_y > 0 {
-                                    if chars[idx] == '\n' {
-                                        offset_y -= 1;
-                                    }
-
-                                    idx += 1;
-                                }
-
                                 for char in characters.chars() {
-                                    content.insert(idx + cursor_x, char)
+                                    content.insert(cursor.cursor_x, char);
+                                    cursor.move_right(&content);
                                 }
-                                cursor_x += 1
                             }
                             _ => return,
                         }
@@ -178,8 +157,9 @@ fn main() {
                         )
                         .unwrap();
 
-                    curr_cursor_x = lerp(curr_cursor_x, cursor_x as f32, 0.1);
-                    curr_cursor_y = lerp(curr_cursor_y, cursor_y as f32, 0.1);
+
+                    curr_cursor_x = lerp(curr_cursor_x, cursor.offset_left as f32, 0.1);
+                    curr_cursor_y = lerp(curr_cursor_y, cursor.newlines_seen as f32, 0.1);
 
                     let cursor_rect = Rectangle {
                         bottom: window.inner_size().height as f32 - bitmap.ascent + bitmap.descent
