@@ -2,7 +2,7 @@ use glium::{
     backend::glutin::Display,
     glutin::surface::WindowSurface,
     index::NoIndices,
-    uniforms::{AsUniformValue, DynamicUniforms, Uniforms, UniformsStorage},
+    uniforms::{AsUniformValue, Uniforms},
     Frame, Program, Surface, VertexBuffer,
 };
 use winit::window::Window;
