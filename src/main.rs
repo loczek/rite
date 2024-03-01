@@ -160,9 +160,21 @@ fn main() {
                         )
                         .unwrap();
 
+                    let counter_shape =
+                        renderer.render(&mut content.len().to_string(), padding, padding, &window);
 
-                    curr_cursor_x = lerp(curr_cursor_x, cursor.offset_left as f32, 0.1);
-                    curr_cursor_y = lerp(curr_cursor_y, cursor.newlines_seen as f32, 0.1);
+                    let counter_vertex_buffer =
+                        VertexBuffer::new(&display, &counter_shape).unwrap();
+
+                    target
+                        .draw(
+                            &counter_vertex_buffer,
+                            &indices,
+                            &program,
+                            &uniforms,
+                            &Default::default(),
+                        )
+                        .unwrap();
 
                     let cursor_rect = Rectangle {
                         bottom: window.inner_size().height as f32 - bitmap.ascent + bitmap.descent
