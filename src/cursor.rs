@@ -1,98 +1,78 @@
+#[derive(Debug)]
 pub struct Cursor {
-    pub cursor_x: usize,
-    pub newlines_seen: usize,
-    pub idx_of_last_seen_newline: usize,
-    pub offset_left: usize,
+    pub idx: usize,          // cursor idx in string
+    pub cursor_y: usize,     // cursor y offset
+    pub cursor_x: usize,     // cursor x offset
+    desired_cursor_x: usize, // desired cursor x offset
 }
 
 impl Cursor {
     pub fn new() -> Self {
         Cursor {
+            idx: 0,
+            cursor_y: 0,
             cursor_x: 0,
-            newlines_seen: 0,
-            idx_of_last_seen_newline: 0,
-            offset_left: 0,
+            desired_cursor_x: 0,
         }
     }
 
     pub fn move_left(&mut self, content: &String) {
-        if self.cursor_x > 0 {
-            self.cursor_x -= 1;
-            if self.offset_left == 0 {
-                let prev_line = content.lines().nth(self.newlines_seen - 1).unwrap();
-                self.offset_left = prev_line.len();
+        if self.idx > 0 {
+            self.idx -= 1;
+            if self.cursor_x == 0 {
+                let prev_line = content.lines().nth(self.cursor_y - 1).unwrap();
+                self.cursor_x = prev_line.len();
+                self.desired_cursor_x = self.cursor_x;
             } else {
-                self.offset_left -= 1
+                self.cursor_x -= 1;
+                self.desired_cursor_x = self.cursor_x;
             }
-        }
-        if content.chars().nth(self.cursor_x).unwrap() == '\n' {
-            self.newlines_seen -= 1;
-            self.idx_of_last_seen_newline = self.cursor_x;
+            if content.chars().nth(self.idx).unwrap() == '\n' {
+                self.cursor_y -= 1;
+            }
         }
     }
 
     pub fn move_right(&mut self, content: &String) {
-        if self.cursor_x < content.len() {
+        if self.idx < content.len() {
+            self.idx += 1;
             self.cursor_x += 1;
-            self.offset_left += 1;
-            if content.chars().nth(self.cursor_x - 1).unwrap() == '\n' {
-                self.newlines_seen += 1;
-                self.idx_of_last_seen_newline = self.cursor_x - 1;
-                self.offset_left = 0;
+            self.desired_cursor_x = self.cursor_x;
+            if content.chars().nth(self.idx - 1).unwrap() == '\n' {
+                self.cursor_y += 1;
+                self.cursor_x = 0;
+                self.desired_cursor_x = self.cursor_x;
             }
         }
     }
 
     pub fn move_down(&mut self, content: &String) {
-        let desired_offset_left = self.offset_left;
-        let desired_newlines_seen = self.newlines_seen + 1;
-
-        while self.cursor_x < content.len() && (self.newlines_seen < desired_newlines_seen) {
-            self.cursor_x += 1;
-            self.offset_left += 1;
-            if content.chars().nth(self.cursor_x - 1).unwrap() == '\n' {
-                self.newlines_seen += 1;
-                self.idx_of_last_seen_newline = self.cursor_x - 1;
-                self.offset_left = 0;
-            }
+        if self.cursor_y >= content.lines().count() - 1 {
+            return;
         }
 
-        let curr_line = content
-            .lines()
-            .nth(self.newlines_seen)
-            .unwrap_or_else(|| "");
+        let curr_line = content.lines().nth(self.cursor_y).unwrap();
+        let next_line = content.lines().nth(self.cursor_y + 1).unwrap_or_else(|| "");
 
-        self.offset_left = desired_offset_left.min(curr_line.len());
-        self.cursor_x += desired_offset_left.min(curr_line.len());
+        self.cursor_y += 1;
+        self.idx += curr_line
+            .len()
+            .min(curr_line.len() - self.cursor_x + next_line.len())
+            + 1;
+        self.cursor_x = self.cursor_x.min(next_line.len());
     }
 
     pub fn move_up(&mut self, content: &String) {
-        if self.newlines_seen == 0 {
+        if self.cursor_y == 0 {
             return;
         }
-        let desired_offset_left = self.offset_left;
-        let desired_newlines_seen = self.newlines_seen - 1;
 
-        while self.cursor_x > 0 && (self.newlines_seen > desired_newlines_seen) {
-            self.cursor_x -= 1;
-            if self.offset_left == 0 {
-                let prev_line = content.lines().nth(self.newlines_seen - 1).unwrap();
-                self.offset_left = prev_line.len();
-            } else {
-                self.offset_left -= 1
-            }
-            if content.chars().nth(self.cursor_x).unwrap() == '\n' {
-                self.newlines_seen -= 1;
-                self.idx_of_last_seen_newline = self.cursor_x;
-            }
-        }
+        let mut lines = content.lines().skip(self.cursor_y - 1);
 
-        let curr_line = content
-            .lines()
-            .nth(self.newlines_seen)
-            .unwrap_or_else(|| "");
+        let above_line = lines.next().unwrap();
 
-        self.offset_left = desired_offset_left.min(curr_line.len());
-        self.cursor_x -= curr_line.len() - desired_offset_left.min(curr_line.len());
+        self.cursor_y -= 1;
+        self.idx -= (above_line.len()).max(self.cursor_x) + 1;
+        self.cursor_x = self.cursor_x.min(above_line.len());
     }
 }

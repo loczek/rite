@@ -85,9 +85,9 @@ fn main() {
                         match event.key_without_modifiers().as_ref() {
                             keyboard::Key::Named(key) => match key {
                                 keyboard::NamedKey::Backspace => {
-                                    if cursor.cursor_x > 0 {
+                                    if cursor.idx > 0 {
                                         cursor.move_left(&content);
-                                        content.remove(cursor.cursor_x);
+                                        content.remove(cursor.idx);
                                     }
                                 }
                                 keyboard::NamedKey::ArrowRight => {
@@ -103,18 +103,18 @@ fn main() {
                                     cursor.move_up(&content);
                                 }
                                 keyboard::NamedKey::Space => {
-                                    content.insert(cursor.cursor_x, ' ');
+                                    content.insert(cursor.idx, ' ');
                                     cursor.move_right(&content);
                                 }
                                 keyboard::NamedKey::Enter => {
-                                    content.insert(cursor.cursor_x, '\n');
+                                    content.insert(cursor.idx, '\n');
                                     cursor.move_right(&content);
                                 }
                                 _ => return,
                             },
                             keyboard::Key::Character(characters) => {
                                 for char in characters.chars() {
-                                    content.insert(cursor.cursor_x, char);
+                                    content.insert(cursor.idx, char);
                                     cursor.move_right(&content);
                                 }
                             }
@@ -137,6 +137,9 @@ fn main() {
                         ],
                         tex: &bitmap.texture,
                     };
+
+                    curr_cursor_x = lerp(curr_cursor_x, cursor.cursor_x as f32, 0.1);
+                    curr_cursor_y = lerp(curr_cursor_y, cursor.cursor_y as f32, 0.1);
 
                     let shape = renderer.render(
                         &mut content,
@@ -164,8 +167,8 @@ fn main() {
                     let cursor_rect = Rectangle {
                         bottom: window.inner_size().height as f32 - bitmap.ascent + bitmap.descent
                             - padding
-                            - (24.0 * curr_cursor_y as f32),
-                        left: (12.0 * curr_cursor_x as f32) + padding,
+                            - (curr_cursor_y * 24.0),
+                        left: padding + (curr_cursor_x * 12.0),
                         height: 24.0,
                         width: 2.0,
                     };
