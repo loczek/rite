@@ -160,8 +160,14 @@ fn main() {
                         )
                         .unwrap();
 
+                    let text = vec![
+                        content.len().to_string(),
+                        cursor.cursor_x.to_string(),
+                        cursor.cursor_y.to_string(),
+                    ];
+
                     let counter_shape =
-                        renderer.render(&mut content.len().to_string(), padding, padding, &window);
+                        renderer.render(&mut text.join(" "), padding, padding, &window);
 
                     let counter_vertex_buffer =
                         VertexBuffer::new(&display, &counter_shape).unwrap();
