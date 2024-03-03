@@ -47,7 +47,14 @@ impl Cursor {
     }
 
     pub fn move_down(&mut self, content: &String) {
-        if self.cursor_y >= content.split('\n').count() - 1 {
+        if self.cursor_y > content.split('\n').count() - 1 {
+            return;
+        }
+
+        if self.cursor_y == content.split('\n').count() - 1 {
+            self.cursor_y = content.split('\n').count() - 1;
+            self.idx = content.len();
+            self.cursor_x = content.split('\n').last().unwrap_or_else(|| "").len();
             return;
         }
 
