@@ -71,6 +71,8 @@ impl Cursor {
 
     pub fn move_up(&mut self, content: &String) {
         if self.cursor_y == 0 {
+            self.cursor_x = 0;
+            self.idx = 0;
             return;
         }
 
