@@ -222,12 +222,11 @@ fn main() {
 
                     let descent_shape = ColorVertex::from(descent_rect, [0.0, 0.0, 1.0]);
 
-                    let mut combined_shape =
-                        [cursor_shape, ascent_shape, baseline_shape, descent_shape].concat();
+                    let mut combined_shape = [cursor_shape].concat();
 
-                    let cursor_shape_iter = combined_shape.iter_mut();
+                    let combined_shape_iter = combined_shape.iter_mut();
 
-                    for vert in cursor_shape_iter {
+                    for vert in combined_shape_iter {
                         scalable::rescale_position(
                             vert,
                             window.inner_size().height as f32,
